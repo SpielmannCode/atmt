@@ -1,0 +1,11 @@
+--data baseline/experimentBPE --save-dir checkpoints/BPE_Batch1
+
+--data baseline/experimentBPE --save-dir checkpoints/BPE_Batch1_cuda --cuda True
+
+--data baseline/experimentAutoEncode --save-dir checkpoints/AutoEncode_Batch1
+
+--data baseline/experimentAutoEncode --save-dir checkpoints/AutoEncode_Batch1_cuda --cuda True
+
+--data baseline/prepared_data --save-dir checkpoints/Baseline_Batch1
+
+--data baseline/prepared_data --save-dir checkpoints/Baseline_Batch1_cuda --cuda True
