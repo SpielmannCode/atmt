@@ -1,2 +1,1 @@
 python preprocess.py --target-lang en --source-lang de --dest-dir baseline/experimentLanguageEnc/ --train-prefix baseline/experimentLanguageEnc/train --valid-prefix baseline/experimentLanguageEnc/valid --test-prefix baseline/experimentLanguageEnc/test --tiny-train-prefix baseline/experimentLanguageEnc/tiny_train --threshold-src 1 --threshold-tgt 1 --num-words-src 4000 --num-words-tgt 4000
-preprocess_BPE_data.sh
