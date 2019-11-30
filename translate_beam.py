@@ -29,6 +29,7 @@ def get_args():
 
     # Add beam search arguments
     parser.add_argument('--beam-size', default=5, type=int, help='number of hypotheses expanded in beam search')
+    parser.add_argument('--alpha', default=0.6, type=float, help='alpha parameter')
 
     return parser.parse_args()
 
@@ -154,12 +155,17 @@ def main(args):
                     backoff_log_p = log_probs[i, :, j+1]
                     next_word = torch.where(best_candidate == tgt_dict.unk_idx, backoff_candidate, best_candidate)
                     log_p = torch.where(best_candidate == tgt_dict.unk_idx, backoff_log_p, best_log_p)
-                    log_p = log_p[-1]
                     next_word = torch.cat((prev_words[i][1:], next_word[-1:]))
+
+                    #Lenght Normalization
+                    betragY = node.length
+                    Lp = ((5 + betragY)**args.alpha) / (5+1)**args.alpha
+                    log_p = log_p[-1] / Lp
 
                     # Get parent node and beam search object for corresponding sentence
                     node = nodes[i]
                     search = node.search
+
 
                     # __QUESTION 4: Why do we treat nodes that generated the end-of-sentence token differently?
 
