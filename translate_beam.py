@@ -31,7 +31,7 @@ def get_args():
     parser.add_argument('--beam-size', default=4, type=int, help='number of hypotheses expanded in beam search')
     parser.add_argument('--alpha', default=0.3, type=float, help='alpha parameter')
     parser.add_argument('--n-best', default=3, type=int, help='n best Translation to print')
-    parser.add_argument('--gamma', default=1.0, type=int, help='gamma parameter')
+    parser.add_argument('--gamma', default=1.0, type=float, help='gamma parameter')
 
     return parser.parse_args()
 
