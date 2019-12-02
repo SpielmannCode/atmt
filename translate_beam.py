@@ -28,8 +28,10 @@ def get_args():
     parser.add_argument('--max-len', default=25, type=int, help='maximum length of generated sequence')
 
     # Add beam search arguments
-    parser.add_argument('--beam-size', default=5, type=int, help='number of hypotheses expanded in beam search')
-    parser.add_argument('--alpha', default=0.6, type=float, help='alpha parameter')
+    parser.add_argument('--beam-size', default=4, type=int, help='number of hypotheses expanded in beam search')
+    parser.add_argument('--alpha', default=0.3, type=float, help='alpha parameter')
+    parser.add_argument('--n-best', default=3, type=int, help='n best Translation to print')
+    parser.add_argument('--gamma', default=1.0, type=int, help='gamma parameter')
 
     return parser.parse_args()
 
@@ -71,6 +73,7 @@ def main(args):
 
     # Iterate over the test set
     all_hyps = {}
+    topn_hyps = []
     for i, sample in enumerate(progress_bar):
 
         # Create a beam search object or every input sentence in batch
@@ -158,9 +161,13 @@ def main(args):
                     next_word = torch.cat((prev_words[i][1:], next_word[-1:]))
 
                     #Lenght Normalization
-                    betragY = node.length
-                    Lp = ((5 + betragY)**args.alpha) / (5+1)**args.alpha
+                    absy = node.length
+                    Lp = ((5 + absy)**args.alpha) / (6)**args.alpha
                     log_p = log_p[-1] / Lp
+
+                    #Diverse Beam Search
+                    rank = args.gamma * j
+                    log_p = log_p - rank
 
                     # Get parent node and beam search object for corresponding sentence
                     node = nodes[i]
@@ -189,7 +196,7 @@ def main(args):
                 search.prune()
 
         # Segment into sentences
-        best_sents = torch.stack([search.get_best()[1].sequence[1:] for search in searches])
+        best_sents = torch.stack([n[1].sequence[1:] for search in searches for n in search.get_nbest(args.n_best)])
         decoded_batch = best_sents.numpy()
 
         output_sentences = [decoded_batch[row, :] for row in range(decoded_batch.shape[0])]
@@ -207,15 +214,25 @@ def main(args):
         # Convert arrays of indices into strings of words
         output_sentences = [tgt_dict.string(sent) for sent in output_sentences]
 
-        for ii, sent in enumerate(output_sentences):
-            all_hyps[int(sample['id'].data[ii])] = sent
+        for sentence in output_sentences:
+            topn_hyps.append(sentence)
+
+        all_hyps[int(sample['id'].data[0])] = output_sentences
 
 
     # Write to file
     if args.output is not None:
         with open(args.output, 'w') as out_file:
             for sent_id in range(len(all_hyps.keys())):
-                out_file.write(all_hyps[sent_id] + '\n')
+                out_file.write(all_hyps[sent_id][0] + '\n')
+
+    if args.output is not None:
+        filename, file_extension = os.path.splitext(args.output)
+        with open(filename+'_top'+str(args.n_best)+file_extension, 'w', encoding='utf-8') as out_file:
+            for sent_id in range(len(all_hyps.keys())):
+                for i in range(args.n_best):
+                    out_file.write(all_hyps[sent_id][i] + '\n')
+                out_file.write('🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆🍆\n')
 
 
 if __name__ == '__main__':
