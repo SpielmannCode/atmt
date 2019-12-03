@@ -160,6 +160,10 @@ def main(args):
                     log_p = torch.where(best_candidate == tgt_dict.unk_idx, backoff_log_p, best_log_p)
                     next_word = torch.cat((prev_words[i][1:], next_word[-1:]))
 
+                    # Get parent node and beam search object for corresponding sentence
+                    node = nodes[i]
+                    search = node.search
+
                     #Lenght Normalization
                     absy = node.length
                     Lp = ((5 + absy)**args.alpha) / (6)**args.alpha
@@ -169,9 +173,7 @@ def main(args):
                     rank = args.gamma * j
                     log_p = log_p - rank
 
-                    # Get parent node and beam search object for corresponding sentence
-                    node = nodes[i]
-                    search = node.search
+
 
 
                     # __QUESTION 4: Why do we treat nodes that generated the end-of-sentence token differently?
